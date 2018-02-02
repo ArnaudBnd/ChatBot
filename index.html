@@ -23,106 +23,73 @@
 
         <script>
 
-            /**
-              * ChatBot.io
-              */
-            var ChatBot = function ChatBot () {
-              return this;
-            };
+class ChatBot {
+  constructor (){
+    this.btnSendMessage = document.querySelector('.btn--send-message');
+    this.socket = io.connect('http://localhost:8081');
+    this.zone_chat = document.querySelector('#zone_chat');
+    this.inputSendMessage = document.querySelector('.input--send-message');
+}
 
-            // Selection des id/class
-            let zone_chat = document.querySelector('#zone_chat');
-            let inputSendMessage = document.querySelector('.input--send-message');
-            let btnSendMessage = document.querySelector('.btn--send-message');
+init () {
+  alert('Serveur succes');
+  this.pseudo = prompt('Quel est votre pseudo ?');
+  this.socket.emit('nouveau_client', pseudo);
+}
 
+run () {
+  this.init();
+  this.sendMessage();
+  this.newClient();
+}
 
-            // Ajoute un message dans la page
-            const insereMessage =  (pseudo, message) => {
-              const p = document.createElement('p');
+newClient () {
+    this.socket.on('nouveau_client', (pseudo) => {
+        alert(pseudo);
+    })
+}
 
-              p.textContent = pseudo + ' : ' + message ;
-              zone_chat.appendChild(p);
-            }
+/**
+ * Send Value from input say - Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
+ *
+ * @return {Chat}
+ */
+ sendMessage () {
+    // event click buttom
+    this.btnSendMessage.addEventListener('click', () => {
 
-            let socket = io.connect('http://localhost:8081');
-            let pseudo = prompt('Quel est votre pseudo ?');
+    this.insereMessage(this.pseudo, this.inputSendMessage.value);
+    this.inputSendMessage.value = '';
+  });
 
-            socket.emit('nouveau_client', pseudo);
+    // event click keypress
+    this.inputSendMessage.addEventListener('keypress', (e) => {
+      var key = e.which || e.keyCode;
 
-            document.title = pseudo + ' - ' + document.title;
+      if (key === 13) {
+        // Affiche le message aussi sur 
+        this.insereMessage(this.pseudo, this.inputSendMessage.value);
+        this.inputSendMessage.value = '';
+      }
+    });
+  }
 
-            // Quand on reçoit un message, on l'insère dans la page
-            socket.on('message', (data) => {
-              insereMessage(data.pseudo, data.message)
-            })
-
-            // Quand un nouveau client se connecte, on affiche l'information
-            socket.on('nouveau_client', (pseudo) => {
-              insereMessage(pseudo, ' a rejoint le Chat !');
-            })
-
-            /**
-             * Run
-             */
-            ChatBot.prototype.run = function () {
-            // Initialise
-            /*this.renderContacts(this.entitys);
-            this.loadBots(this.entitys);
-            this.updateHeader(this.login);*/
-
-            // Events
-            this.sendValueKey();
-            this.sendValue();
-
-            return;
-            };
-
-            /**
-             * Send Value from input say
-             *
-             * @return {Chat}
-             */
-            ChatBot.prototype.sendValue = function () {
-            // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
-            btnSendMessage.addEventListener('click',() => {
-                socket.emit('message', inputSendMessage.value); // Transmet le message aux autres sur le chat
-                insereMessage(pseudo, inputSendMessage.value); // Affiche le message aussi sur 
-
-                inputSendMessage.value = '';
-                // notre page
-                return false; // Permet de bloquer l'envoi "classique" du formulaire
-            });
-
-            return this;
-            };
-
-            /**
-             * Send Value from keybord 'enter' say
-             *
-             * @return {Chat}
-             */
-            ChatBot.prototype.sendValueKey = function () {
-            // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
-            inputSendMessage.addEventListener('keypress',(e) => {
-            var key = e.which || e.keyCode;
-
-            if (key === 13) {
-                socket.emit('message', inputSendMessage.value); // Transmet le message aux autres sur le chat
-                insereMessage(pseudo, inputSendMessage.value); // Affiche le message aussi sur 
-
-                inputSendMessage.value = '';
-                // notre page
-                return false;
-            } // Permet de bloquer l'envoi "classique" du formulaire
-            });
-
-            return this;
-            };
+/**
+ * inserer le message dans le chat 
+ *
+ * @return {Chat}
+ */
+insereMessage (pseudo, message) {
+  const p = document.createElement('p');
+  p.textContent = pseudo + ' : ' + message;
+  this.zone_chat.appendChild(p);
+  document.title = pseudo + ' - ' + document.title;
+}
+}
 
 
-            var chatBot = new ChatBot();
-
-            chatBot.run();
+const chatBot = new ChatBot();
+chatBot.run();
 
         </script>
 
