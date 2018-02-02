@@ -1,97 +1,24 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Super Chat temps réel !</title>
-        <style>
-            #zone_chat strong {
-                color: white;
-                background-color: black;
-                padding: 2px;
-            }
-        </style>
-    </head>
- 
+  <head>
+    <meta charset="utf-8" />
+    <title>Super Chat temps réel !</title>
+    <style>
+      #zone_chat strong {
+        color: white;
+        background-color: black;
+        padding: 2px;
+      }
+    </style>
+  </head>
   <body>
     <h1>Le super Chat temps réel !</h1>
     <input type="text" class="input--send-message" placeholder="Votre message..." />
     <button class="btn--send-message">Envoyer</button>
-
     <section id="zone_chat"></section>
 
-        <script src="/socket.io/socket.io.js"></script>
-
-        <script>
-
-class ChatBot {
-  constructor (){
-    this.btnSendMessage = document.querySelector('.btn--send-message');
-    this.socket = io.connect('http://localhost:8081');
-    this.zone_chat = document.querySelector('#zone_chat');
-    this.inputSendMessage = document.querySelector('.input--send-message');
-}
-
-init () {
-  alert('Serveur succes');
-  this.pseudo = prompt('Quel est votre pseudo ?');
-  this.socket.emit('nouveau_client', pseudo);
-}
-
-run () {
-  this.init();
-  this.sendMessage();
-  this.newClient();
-}
-
-newClient () {
-    this.socket.on('nouveau_client', (pseudo) => {
-        alert(pseudo);
-    })
-}
-
-/**
- * Send Value from input say - Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
- *
- * @return {Chat}
- */
- sendMessage () {
-    // event click buttom
-    this.btnSendMessage.addEventListener('click', () => {
-
-    this.insereMessage(this.pseudo, this.inputSendMessage.value);
-    this.inputSendMessage.value = '';
-  });
-
-    // event click keypress
-    this.inputSendMessage.addEventListener('keypress', (e) => {
-      var key = e.which || e.keyCode;
-
-      if (key === 13) {
-        // Affiche le message aussi sur 
-        this.insereMessage(this.pseudo, this.inputSendMessage.value);
-        this.inputSendMessage.value = '';
-      }
-    });
-  }
-
-/**
- * inserer le message dans le chat 
- *
- * @return {Chat}
- */
-insereMessage (pseudo, message) {
-  const p = document.createElement('p');
-  p.textContent = pseudo + ' : ' + message;
-  this.zone_chat.appendChild(p);
-  document.title = pseudo + ' - ' + document.title;
-}
-}
-
-
-const chatBot = new ChatBot();
-chatBot.run();
-
-        </script>
-
-    </body>
+    <!-- Script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./public/bundle.js"></script>
+  </body>
 </html>
