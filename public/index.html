@@ -1,51 +1,82 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <title>Super Chat temps réel !</title>
     <style>
-      #zone_chat strong {
-        color: white;
-        background-color: black;
-        padding: 2px;
-      }
+      .message-bubble {padding: 10px 0px 10px 0px;}
+
+      .message-bubble > * {padding-left: 20px;}
+
+      .panel-body {padding: 0px;}
+
+      .panel-heading {background-color: #3d6da7 !important; color: white !important;}
+
+      .form-control {display: block; margin : auto;}
+
+      .input-group {width:100%}
+
     </style>
   </head>
   <body>
-    <section id="zone_chat">
-    <h1>Le super Chat temps réel !</h1>
-    <input type="text" class="input--send-message" placeholder="Votre message..." />
-    </section>
+
     <section id="login">
-        <label for="u">Username</label>
+        <label for="u">Veuillez choisir un nom d'utilisateur</label>
         <input id="u">
         <p>
-          <button id="log">Login</button>
+          <button id="log" class="input--send-user">Login</button>
         </p>
+        <div id="errorMessage"></div>
     </section>
 
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading">Le super Chat temps réel !</div>
+              <div class="panel-body">
+                <div class="container1">
 
-    <!-- Script -->
+                    <!-- <div class="row message-bubble">
+                    <p class="text-muted">Matt Townsen</p>
+                        <p>Test message</p>
+                    </div>-->
+
+                </div>
+                <div class="panel-footer">
+                     <div class="input-group">
+                      <input type="text" class="form-control">
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="index.js"></script> 
+
+    </body>
+
+  <!--<body>
+
+    <section id="login">
+        <label for="u">Veuillez choisir un nom d'utilisateur</label>
+        <input id="u">
+        <p>
+          <button id="log" class="input--send-user">Login</button>
+        </p>
+        <div id="errorMessage"></div>
+    </section>
+
+    <section id="chat">
+    <h1>Le super Chat temps réel !</h1>
+    <input type="text" class="input--send-message" placeholder="Votre message..." />
+    <section id="zone_chat"></section>
+    </section>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>
-  </body>
+  </body>-->
 </html>
 
-<!--//connection utilisateur
-const sendUser = document.querySelector('#log');
-
-sendUser.addEventListener('click', (e) => {
-  e.preventDefault();
-
- const user = {
-    'username': document.querySelector('#login input').value
-  };
-
- if (user.username.length > 0) {
-    document.querySelector('#zone_chat').style.visibility = '';
-    document.querySelector('#login').style.visibility = 'hidden';
-    socket.emit('user-login', user);
-    document.querySelector('#login input').value
-    document.querySelector('#input--send-message').focus();
-  }
-});-->
