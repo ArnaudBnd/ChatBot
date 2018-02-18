@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "eslint ./public/index.js ./app.js && browserify public/index.js -o public/bundle.js && node app"
+    "start": "eslint ./public/index.js ./server.js && browserify public/index.js -o public/bundle.js && node server"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "browserify": "^15.2.0"
   },
   "dependencies": {
-    "ent": "^0.1.0",
+    "ent": "^2.2.0",
     "socket.io": "^2.0.4"
   }
 }

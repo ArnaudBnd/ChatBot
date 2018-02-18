@@ -1,3 +1,6 @@
+/**
+ * Constructor
+ */
 class ChatBot {
   constructor () {
     this.btnSendMessage = document.querySelector('.btn--send-message');
@@ -9,6 +12,8 @@ class ChatBot {
 
     // appel du constructeur par defaut de io
     this.socket = io();
+
+    this.init();
   }
 
   init () {
@@ -32,7 +37,6 @@ class ChatBot {
    * @return {Chat}
    */
   run () {
-    this.init();
     this.sendMessage();
   }
 
@@ -45,7 +49,7 @@ class ChatBot {
     this.inputSendMessage.addEventListener('keypress', e => {
       let key = e.which || e.keyCode;
 
-      console.log('test');
+      console.warn('test');
       if (key === 13) {
         console.log(this.inputSendMessage.value);
         // Affiche le message aussi sur
