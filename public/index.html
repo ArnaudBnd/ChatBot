@@ -3,22 +3,10 @@
   <head>
     <meta charset="utf-8"/>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="./css/index.css">
     <title>Super Chat temps réel !</title>
-    <style>
-      .message-bubble {padding: 10px 0px 10px 0px;}
-
-      .message-bubble > * {padding-left: 20px;}
-
-      .panel-body {padding: 0px;}
-
-      .panel-heading {background-color: #3d6da7 !important; color: white !important;}
-
-      .form-control {display: block; margin : auto;}
-
-      .input-group {width:100%}
-
-    </style>
   </head>
   <body>
 
@@ -49,12 +37,17 @@
                       <input type="text" class="form-control">
                     </div>
                 </div>
+
               </div>
             </div>
         </div>
     </div>
+
+    <div id="elZoneChat"></div>
+
     <script src="/socket.io/socket.io.js"></script>
-    <script src="chat.js"></script> 
+    <script src="bundle.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=init"></script>
 
     </body>
 </html>
