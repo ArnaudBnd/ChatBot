@@ -6,11 +6,11 @@ class ChatBot {
     this.btnSendMessage = document.querySelector('.btn--send-message');
     this.zoneChat = document.querySelector('#zone_chat');
     this.inputSendMessage = document.querySelector('.form-control');
+    this.inputSendTitre = document.querySelector('.input-group1 input');
     this.inputSendUser = document.querySelector('.input--send-user');
     this.inputUser = document.querySelector('#u');
     this.elMsgContent = document.querySelector('.container1');
     this.elZoneChat = document.querySelector('#elZoneChat');
-
 
     // appel du constructeur par defaut de io
     this.socket = io();
@@ -22,14 +22,19 @@ class ChatBot {
     document.querySelector('.container').style.visibility = 'hidden';
 
     this.socket.on('messageytb', data => {
-      // reception du pseudo avec les id de la videos souhaité
-      console.log(data);
+      this.insereMessage(data.pseudo + ' à demandé youtube.', data.message = '');
+      this.insereMessage(data.pseudo, data.message = '' + ' Veuillez rechercher un titre de video à afficher: ');
+
+      this.sendTitreVideo();
+    });
+
+    this.socket.on('titrevideo', data => {
       var url = data.message;
-      
-      for (let i = 0; i < url.length; i++) {
+
+      for (let i = 0; i < url.length; i ++) {
         this.iframeYtb(url[i]);
       }
-     });
+    });
 
     this.socket.on('messagecarfr', data => {
       console.log(data);
@@ -41,15 +46,9 @@ class ChatBot {
       this.insereMessage(data.pseudo, data.message + ' à demandé uber');
     });
 
-
     // reception d'un message
     this.socket.on('message', data => {
-      console.log(data);
       this.insereMessage(data.pseudo, data.message);
-
-      // choix options API
-      if(data.message == '/') {
-      } 
     });
 
     // reception d'un client
@@ -78,20 +77,32 @@ class ChatBot {
       let key = e.which || e.keyCode;
 
       if (key === 13) {
-
-        if (this.inputSendMessage.value == "/youtube") {
-            this.socket.emit('messageytb', this.inputSendMessage.value);
-            this.inputSendMessage.value = '';
-          } else if (this.inputSendMessage.value == "/carrefour") {
-            this.socket.emit('messagecarfr', this.inputSendMessage.value);
-            this.inputSendMessage.value = '';
-          } else if (this.inputSendMessage.value == "/uber") {
-            this.socket.emit('messageubr', this.inputSendMessage.value);
-            this.inputSendMessage.value = '';
-          } else {
-            this.socket.emit('message', this.inputSendMessage.value);
-            this.inputSendMessage.value = '';
+        if (this.inputSendMessage.value === '/youtube') {
+          this.socket.emit('messageytb', this.inputSendMessage.value);
+          this.inputSendMessage.value = '';
+          document.querySelector('.input-group1').style.visibility = '';
+          document.querySelector('.input-group').style.visibility = 'hidden';
+        } else if (this.inputSendMessage.value === '/carrefour') {
+          this.socket.emit('messagecarfr', this.inputSendMessage.value);
+          this.inputSendMessage.value = '';
+        } else if (this.inputSendMessage.value === '/uber') {
+          this.socket.emit('messageubr', this.inputSendMessage.value);
+          this.inputSendMessage.value = '';
+        } else {
+          this.socket.emit('message', this.inputSendMessage.value);
+          this.inputSendMessage.value = '';
         }
+      }
+    });
+  }
+
+  sendTitreVideo () {
+    this.inputSendTitre.addEventListener('keypress', e => {
+      let key = e.which || e.keyCode;
+
+      if (key === 13) {
+        this.socket.emit('titrevideo', this.inputSendTitre.value);
+        this.inputSendTitre.value = '';
       }
     });
   }
@@ -108,6 +119,7 @@ class ChatBot {
       } else {
         e.preventDefault();
         document.querySelector('.container').style.visibility = '';
+        document.querySelector('.input-group1').style.visibility = 'hidden';
         this.pseudo = document.querySelector('#login input').value;
         document.querySelector('#login').style.visibility = 'hidden';
         this.socket.emit('nouveau_client', this.pseudo);
@@ -118,7 +130,7 @@ class ChatBot {
   /**
     * Display user on chat
     *
-    * @param {String} message
+    * @param {String} pseudo
     * @return {String} dom
     */
   displayUserChat (pseudo) {
@@ -148,18 +160,23 @@ class ChatBot {
     this.elMsgContent.innerHTML += dom;
   }
 
-   iframeYtb (id) {
-
+  /**
+    * Create iframe youtube
+    *
+    * @param {int} id
+    * @return {String} dom
+    */
+  iframeYtb (id) {
     const elNewIframe = document.createElement('iframe');
-      elNewIframe.setAttribute("id", "player");
-      elNewIframe.setAttribute("type", "text/html");
-      elNewIframe.setAttribute("width", "640");
-      elNewIframe.setAttribute("height", "360");
-      elNewIframe.setAttribute("src", `http://www.youtube.com/embed/${id}`);
 
-      elZoneChat.appendChild(elNewIframe);
+    elNewIframe.setAttribute('id', 'player');
+    elNewIframe.setAttribute('type', 'text/html');
+    elNewIframe.setAttribute('width', '640');
+    elNewIframe.setAttribute('height', '360');
+    elNewIframe.setAttribute('src', `http://www.youtube.com/embed/${id}`);
+
+    this.elZoneChat.appendChild(elNewIframe);
   }
-
 }
 
 const chatBot = new ChatBot();

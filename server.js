@@ -12,7 +12,6 @@ io.sockets.on('connection', socket => {
 
   // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
   socket.on('nouveau_client', pseudo => {
-    console.log(pseudo);
     socket.pseudo = pseudo;
     socket.broadcast.emit('nouveau_client', pseudo);
   });
@@ -24,14 +23,20 @@ io.sockets.on('connection', socket => {
     io.emit('message', {'pseudo': socket.pseudo, 'message': message});
   });
 
+
+// ----------------- APIS ----------------- 
   socket.on('messageubr', message => {
-    console.log(message);
     io.emit('messageubr', {'pseudo': socket.pseudo, 'message': message});
   });
 
   socket.on('messagecarfr', message => {
-    console.log(message);
     io.emit('messagecarfr', {'pseudo': socket.pseudo, 'message': message});
+  });
+
+// ----------------- API Youtube ----------------- 
+
+  socket.on('titrevideo', message => {
+    callApi(message, result => {});
   });
 
   const callApi = (name, callback) => {
@@ -40,14 +45,14 @@ io.sockets.on('connection', socket => {
 
     youTube.setKey('AIzaSyBHUsxQvMVXD95PK5ewUz6xw7ZCes2QnIk');
 
-    youTube.search(name, 10, (error, result) => {
+    youTube.search(name, 5, (error, result) => {
       if (error) {
         console.log(error);
       } else {
-        for (let i = 0; i < 10; i ++) {
+        for (let i = 0; i < 5; i ++) {
           tabVideos.push(result.items[i].id.videoId);
         }
-        io.emit('messageytb', {'message': tabVideos});
+        io.emit('titrevideo', {'pseudo': socket.pseudo, 'message': tabVideos});
         callback(tabVideos);
       }
     });
@@ -55,9 +60,9 @@ io.sockets.on('connection', socket => {
   };
 
   socket.on('messageytb', message => {
-    callApi('tennis', result => {
-    });
+    io.emit('messageytb', {'pseudo': socket.pseudo, 'message': message});
   });
+
 });
 
 server.listen(8081);
