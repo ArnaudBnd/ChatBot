@@ -21,6 +21,7 @@ class ChatBot {
   init () {
     document.querySelector('.container').style.visibility = 'hidden';
 
+    // ------------------------- Message youtube -------------------------
     this.socket.on('messageytb', data => {
       this.insereMessage(data.pseudo + ' à demandé youtube.', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez rechercher un titre de video à afficher: ');
@@ -29,6 +30,7 @@ class ChatBot {
     });
 
     this.socket.on('titrevideo', data => {
+      console.log(data);
       var url = data.message;
 
       for (let i = 0; i < url.length; i ++) {
@@ -36,22 +38,52 @@ class ChatBot {
       }
     });
 
-    this.socket.on('messagecarfr', data => {
-      console.log(data);
-      this.insereMessage(data.pseudo, data.message + ' à demandé carrefour');
+    // ------------------------- Message translate -------------------------
+    this.socket.on('messagetranslt', data => {
+      this.insereMessage(data.pseudo + ' à demandé translate.', data.message = '');
+      this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir une phrase a traduire: ');
+
+      this.sendSentence();
     });
 
+    this.socket.on('texttranslate', data => {
+      if (data.message.length === 3) {
+        this.insereMessage(data.pseudo = '' + 'Voici la traduction:', data.message);
+      }
+    });
+
+    // ------------------------- Message carrefour -------------------------
+    this.socket.on('messagecarfr', data => {
+      this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
+      this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir je sais pas quoi: ');
+      //fonction qui recup la longitude et lattitude de l'utilisateur
+
+      this.getLongLat();
+    });
+
+    this.socket.on('positionJson', data => {
+      let list = JSON.parse(data.message).list;
+
+      for (let item of list) {
+        // inserer les address en dessous
+        this.insereMessage(data.pseudo = '', data.message = item.address);
+        this.iframeCarrefour(item.address);
+      }
+
+      //console.log(JSON.parse(data.message.list));
+    });
+
+    // ------------------------- Message uber-------------------------
     this.socket.on('messageubr', data => {
       console.log(data);
       this.insereMessage(data.pseudo, data.message + ' à demandé uber');
     });
 
-    // reception d'un message
+    // ------------------------- Message chat -------------------------
     this.socket.on('message', data => {
       this.insereMessage(data.pseudo, data.message);
     });
 
-    // reception d'un client
     this.socket.on('nouveau_client', data => {
       this.displayUserChat(data);
     });
@@ -82,6 +114,11 @@ class ChatBot {
           this.inputSendMessage.value = '';
           document.querySelector('.input-group1').style.visibility = '';
           document.querySelector('.input-group').style.visibility = 'hidden';
+        } else if (this.inputSendMessage.value === '/translate') {
+          this.socket.emit('messagetranslt', this.inputSendMessage.value);
+          this.inputSendMessage.value = '';
+          document.querySelector('.input-group1').style.visibility = '';
+          document.querySelector('.input-group').style.visibility = 'hidden';
         } else if (this.inputSendMessage.value === '/carrefour') {
           this.socket.emit('messagecarfr', this.inputSendMessage.value);
           this.inputSendMessage.value = '';
@@ -96,12 +133,33 @@ class ChatBot {
     });
   }
 
+  /**
+   * Send titre for video youtube
+   *
+   * @return {Chat}
+   */
   sendTitreVideo () {
     this.inputSendTitre.addEventListener('keypress', e => {
       let key = e.which || e.keyCode;
 
       if (key === 13) {
         this.socket.emit('titrevideo', this.inputSendTitre.value);
+        this.inputSendTitre.value = '';
+      }
+    });
+  }
+
+  /**
+   * Send Sentence to translate
+   *
+   * @return {Chat}
+   */
+  sendSentence () {
+    this.inputSendTitre.addEventListener('keypress', e => {
+      let key = e.which || e.keyCode;
+
+      if (key === 13) {
+        this.socket.emit('sentence', this.inputSendTitre.value);
         this.inputSendTitre.value = '';
       }
     });
@@ -177,6 +235,59 @@ class ChatBot {
 
     this.elZoneChat.appendChild(elNewIframe);
   }
+
+  /**
+    * Create iframe carrefour google map
+    *
+    * @param {int} id
+    * @return {String} dom
+    */
+  iframeCarrefour (position) {
+    const elNewIframe = document.createElement('iframe');
+
+    elNewIframe.setAttribute('width', "600");
+    elNewIframe.setAttribute('height', "450");
+    elNewIframe.setAttribute('frameborder', "0");
+    elNewIframe.setAttribute('style', "border:0");
+    elNewIframe.setAttribute('src', 
+      `https://www.google.com/maps/embed/v1/place?key=AIzaSyBzhXQGlpp20V71dGCT_67REdUlWe-Gpog&q=${position}`);
+    
+    this.elZoneChat.appendChild(elNewIframe);
+  }
+
+  /**
+    * Get position from users
+    *
+    * @param {int} id
+    * @return {String} dom
+    */
+  getLongLat () {
+
+    var ioo = this.socket;
+    function getLocation() {
+
+      console.log('test get locat');
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition);
+      } else { 
+          console.log("Geolocation is not supported by this browser.");
+      }
+    };
+
+    function showPosition (position) {
+      let latLong = [];
+
+      let latitude = position.coords.latitude;
+      let longitude = position.coords.longitude;
+      latLong.push({'latitude': latitude, 'longitude': longitude});
+
+      console.log(latLong);
+      ioo.emit('position', latLong);
+    };
+
+      getLocation();
+    }
+
 }
 
 const chatBot = new ChatBot();
