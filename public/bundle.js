@@ -11,6 +11,7 @@ class ChatBot {
     this.inputSendUser = document.querySelector('.input--send-user');
     this.inputUser = document.querySelector('#u');
     this.elMsgContent = document.querySelector('.container1');
+    this.elNewTitle = document.querySelector('#elZoneChat1');
     this.elZoneChat = document.querySelector('#elZoneChat');
 
     // appel du constructeur par defaut de io
@@ -56,29 +57,40 @@ class ChatBot {
     // ------------------------- Message carrefour -------------------------
     this.socket.on('messagecarfr', data => {
       this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
-      this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir je sais pas quoi: ');
+      this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle');
       //fonction qui recup la longitude et lattitude de l'utilisateur
 
-      this.getLongLat();
+      this.getLongLatCar();
     });
 
     this.socket.on('positionJson', data => {
       let list = JSON.parse(data.message).list;
 
       for (let item of list) {
-        // inserer les address en dessous
-        this.insereMessage(data.pseudo = '', data.message = item.address);
         this.iframeCarrefour(item.address);
       }
-
-      //console.log(JSON.parse(data.message.list));
     });
 
-    // ------------------------- Message uber-------------------------
+    // ------------------------- Message uber -------------------------
     this.socket.on('messageubr', data => {
-      console.log(data);
       this.insereMessage(data.pseudo, data.message + ' à demandé uber');
+
+      this.getLongLatUber();
     });
+
+    this.socket.on('uberPrice', data => {
+      console.log('-----------------> data Uber Price: ');
+      console.log(data);
+    });
+
+    // TODO parser les coordonnées gps pour les passer en parametre de iframe()
+    this.socket.on('uberGPS', data => {
+      console.log('-----------------> data Uber GPS: ');
+      console.log(data.message[0].latitude);
+
+      //this.iframeUber(position, destination);
+    });
+    
 
     // ------------------------- Message chat -------------------------
     this.socket.on('message', data => {
@@ -240,19 +252,42 @@ class ChatBot {
   /**
     * Create iframe carrefour google map
     *
-    * @param {int} id
+    * @param {int} position
     * @return {String} dom
     */
   iframeCarrefour (position) {
     const elNewIframe = document.createElement('iframe');
 
-    elNewIframe.setAttribute('width', "600");
-    elNewIframe.setAttribute('height', "450");
-    elNewIframe.setAttribute('frameborder', "0");
-    elNewIframe.setAttribute('style', "border:0");
-    elNewIframe.setAttribute('src', 
+    elNewIframe.setAttribute('width', '600');
+    elNewIframe.setAttribute('height', '450');
+    elNewIframe.setAttribute('frameborder', '0');
+    elNewIframe.setAttribute('style', 'border:0');
+    elNewIframe.setAttribute('src',
       `https://www.google.com/maps/embed/v1/place?key=AIzaSyBzhXQGlpp20V71dGCT_67REdUlWe-Gpog&q=${position}`);
-    
+
+    this.elZoneChat.appendChild(elNewIframe);
+  }
+
+    /**
+    * Create iframe uber google map
+    *
+    * @param {int} position, destination
+    * @return {String} dom
+    */
+  iframeUber (position, destination) {
+    const elNewIframe = document.createElement('iframe');
+
+    elNewIframe.setAttribute('width', '600');
+    elNewIframe.setAttribute('height', '450');
+    elNewIframe.setAttribute('frameborder', '0');
+    elNewIframe.setAttribute('style', 'border:0');
+    elNewIframe.setAttribute('src',
+      `https://www.google.com/maps/embed/v1/directions
+       ?key=AIzaSyBzhXQGlpp20V71dGCT_67REdUlWe-Gpog
+       &origin=${position}
+       &destination=${destination}
+       &avoid=tolls|highways`);
+
     this.elZoneChat.appendChild(elNewIframe);
   }
 
@@ -262,32 +297,64 @@ class ChatBot {
     * @param {int} id
     * @return {String} dom
     */
-  getLongLat () {
-
+  getLongLatCar () {
     var ioo = this.socket;
-    function getLocation() {
 
-      console.log('test get locat');
+    function getLocation () {
       if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showPosition);
-      } else { 
-          console.log("Geolocation is not supported by this browser.");
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        console.log('Geolocation is not supported by this browser.');
       }
-    };
+    }
 
     function showPosition (position) {
       let latLong = [];
 
       let latitude = position.coords.latitude;
       let longitude = position.coords.longitude;
+
       latLong.push({'latitude': latitude, 'longitude': longitude});
 
       console.log(latLong);
       ioo.emit('position', latLong);
-    };
-
-      getLocation();
     }
+
+    getLocation();
+  }
+
+  /**
+    * Get position from users
+    *
+    * @param {int} id
+    * @return {String} dom
+    */
+  getLongLatUber () {
+    var ioo = this.socket;
+
+    function getLocation () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        console.log('Geolocation is not supported by this browser.');
+      }
+    }
+
+    function showPosition (position) {
+      let latLong = [];
+
+      let latitude = position.coords.latitude;
+      let longitude = position.coords.longitude;
+
+      latLong.push({'latitude': latitude, 'longitude': longitude});
+
+      console.log(latLong);
+      ioo.emit('positionUber', latLong);
+    }
+
+    getLocation();
+  }
+
 
 }
 

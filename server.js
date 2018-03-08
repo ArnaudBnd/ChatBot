@@ -24,9 +24,44 @@ io.sockets.on('connection', socket => {
     io.emit('message', {'pseudo': socket.pseudo, 'message': message});
   });
 
-  // ----------------- APIS -----------------
+  // ----------------- API UBER -----------------
   socket.on('messageubr', message => {
     io.emit('messageubr', {'pseudo': socket.pseudo, 'message': message});
+  });
+
+  const callApiUber = (longitude, latitude) => {
+    var options = {
+      method: 'GET',
+      url: 'https://api.uber.com/v1.2/estimates/price',
+      qs: {
+        start_latitude: latitude,
+        start_longitude: longitude,
+        end_latitude: '48.8584',
+        end_longitude: '2.2945'
+      },
+      headers:{
+        'Authorization': 'Token ' + 'GiXTv8BW2O-18gX4iNfVmzEkNm1Khmxo-ALAhVGH',
+        'Accept-Language': 'en_US',
+        'Content-Type':  'application/json'
+      } 
+    };
+
+    request(options, function (error, response, body) {
+      if (error) return  console.error('Failed: %s', error.message);
+
+      else {
+        let jsonPrice = JSON.parse(body); 
+        /*console.log('----------------------> succes: ');
+        console.log(jsonPrice);*/
+        io.emit('uberPrice', {'pseudo': socket.pseudo, 'message': jsonPrice});
+      }
+    });
+  }
+
+  socket.on('positionUber', message => {
+    console.log(message);
+    callApiUber(message[0].longitude, message[0].latitude);
+    io.emit('uberGPS', {'message': message});
   });
 
   // ----------------- API Translate (en, es, de) -----------------
@@ -47,7 +82,6 @@ io.sockets.on('connection', socket => {
           var text1 = translation.translatedText;
 
           textTranslate.push(text1);
-          console.log(textTranslate);
           io.emit('texttranslate', {'pseudo': socket.pseudo, 'message': textTranslate});
         }
       });
