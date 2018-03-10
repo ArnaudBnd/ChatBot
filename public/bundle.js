@@ -73,24 +73,32 @@ class ChatBot {
 
     // ------------------------- Message uber -------------------------
     this.socket.on('messageubr', data => {
-      this.insereMessage(data.pseudo, data.message + ' à demandé uber');
+      console.log(data);
+      this.insereMessage(data.pseudo + ' à demandé uber', data.message = '');
+      this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir un lieu ou vous voulez aller: ');
 
       this.getLongLatUber();
     });
 
     this.socket.on('uberPrice', data => {
-      console.log('-----------------> data Uber Price: ');
+      console.log('-----------------> data Uber Price a récupérer: ');
       console.log(data);
     });
 
-    // TODO parser les coordonnées gps pour les passer en parametre de iframe()
+    // PB position = ville destination = ville
     this.socket.on('uberGPS', data => {
-      console.log('-----------------> data Uber GPS: ');
-      console.log(data.message[0].latitude);
-
-      //this.iframeUber(position, destination);
+      console.log('------------------> uberGPS à récuperer: ');
+      console.log(data);
     });
-    
+
+    this.socket.on('uberposition', data => {
+      console.log('------------------> uberPosition à recuperer   : ');
+      console.log(data.message); // position
+
+      this.iframeUber(data.message, data => {
+
+      });
+    });
 
     // ------------------------- Message chat -------------------------
     this.socket.on('message', data => {
@@ -138,6 +146,8 @@ class ChatBot {
         } else if (this.inputSendMessage.value === '/uber') {
           this.socket.emit('messageubr', this.inputSendMessage.value);
           this.inputSendMessage.value = '';
+          document.querySelector('.input-group1').style.visibility = '';
+          document.querySelector('.input-group').style.visibility = 'hidden';
         } else {
           this.socket.emit('message', this.inputSendMessage.value);
           this.inputSendMessage.value = '';
@@ -268,7 +278,7 @@ class ChatBot {
     this.elZoneChat.appendChild(elNewIframe);
   }
 
-    /**
+  /**
     * Create iframe uber google map
     *
     * @param {int} position, destination
@@ -281,12 +291,7 @@ class ChatBot {
     elNewIframe.setAttribute('height', '450');
     elNewIframe.setAttribute('frameborder', '0');
     elNewIframe.setAttribute('style', 'border:0');
-    elNewIframe.setAttribute('src',
-      `https://www.google.com/maps/embed/v1/directions
-       ?key=AIzaSyBzhXQGlpp20V71dGCT_67REdUlWe-Gpog
-       &origin=${position}
-       &destination=${destination}
-       &avoid=tolls|highways`);
+    elNewIframe.setAttribute('src', `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBzhXQGlpp20V71dGCT_67REdUlWe-Gpog&origin=${position}&destination=${destination}&avoid=tolls|highways`);
 
     this.elZoneChat.appendChild(elNewIframe);
   }
@@ -324,17 +329,40 @@ class ChatBot {
   }
 
   /**
+   * Send Sentence to translate
+   *
+   * @return {Chat}
+   */
+  sendCity () {
+    let tabDestionation = [];
+
+    this.inputSendTitre.addEventListener('keypress', e => {
+      let key = e.which || e.keyCode;
+
+      if (key === 13) {
+        //this.socket.emit('uberdestination', this.inputSendTitre.value);
+        var destination = this.inputSendTitre.value;
+        tabDestionation.push(destination);
+        this.inputSendTitre.value = '';
+      }
+    });
+  }
+
+  /**
     * Get position from users
     *
     * @param {int} id
     * @return {String} dom
     */
   getLongLatUber () {
-    var ioo = this.socket;
+    let ioo = this.socket;
+    let sendCity = this.sendCity();
 
     function getLocation () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition);
+        sendCity;
+
       } else {
         console.log('Geolocation is not supported by this browser.');
       }
@@ -348,13 +376,13 @@ class ChatBot {
 
       latLong.push({'latitude': latitude, 'longitude': longitude});
 
+      console.log('---------------------- > tableau :latLong');
       console.log(latLong);
-      ioo.emit('positionUber', latLong);
+
     }
 
     getLocation();
   }
-
 
 }
 
