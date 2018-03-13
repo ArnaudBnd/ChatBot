@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "@google-cloud/translate": "^1.1.0",
+    "chatbot-bot-carrefour": "file:../chatbot-bot-carrefour",
+    "deasync": "^0.1.12",
     "ent": "^2.2.0",
     "google-translate": "^2.1.0",
     "node-geocoder": "^3.22.0",

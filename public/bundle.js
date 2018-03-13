@@ -8,6 +8,7 @@ class ChatBot {
     this.zoneChat = document.querySelector('#zone_chat');
     this.inputSendMessage = document.querySelector('.form-control');
     this.inputSendTitre = document.querySelector('.input-group1 input');
+    this.inputSendTitre2 = document.querySelector('.form2');
     this.inputSendUser = document.querySelector('.input--send-user');
     this.inputUser = document.querySelector('#u');
     this.elMsgContent = document.querySelector('.container1');
@@ -32,7 +33,6 @@ class ChatBot {
     });
 
     this.socket.on('titrevideo', data => {
-      console.log(data);
       var url = data.message;
 
       for (let i = 0; i < url.length; i ++) {
@@ -73,7 +73,6 @@ class ChatBot {
 
     // ------------------------- Message uber -------------------------
     this.socket.on('messageubr', data => {
-      console.log(data);
       this.insereMessage(data.pseudo + ' à demandé uber', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir un lieu ou vous voulez aller: ');
 
@@ -82,22 +81,20 @@ class ChatBot {
 
     this.socket.on('uberPrice', data => {
       console.log('-----------------> data Uber Price a récupérer: ');
-      console.log(data);
+      console.log(data.message.prices[1].estimate);
+      console.log(data.message.prices[1]);
+
+      this.inserePrice(data.message.prices[1]);
+
     });
 
-    // PB position = ville destination = ville
     this.socket.on('uberGPS', data => {
       console.log('------------------> uberGPS à récuperer: ');
       console.log(data);
     });
 
     this.socket.on('uberposition', data => {
-      console.log('------------------> uberPosition à recuperer   : ');
-      console.log(data.message); // position
-
-      this.iframeUber(data.message, data => {
-
-      });
+      this.iframeUber(data.message, data.message[0].destination);
     });
 
     // ------------------------- Message chat -------------------------
@@ -242,6 +239,22 @@ class ChatBot {
   }
 
   /**
+    * Insert message into chat
+    *
+    * @param {String} message
+    * @return {String} dom
+    */
+  inserePrice (price) {
+    let dom = '';
+
+    dom += '<div>';
+    dom += '<p>Le prix de votre uber est de ' + price + '. </p>';
+    dom += '</div>';
+
+    this.elMsgContent.innerHTML += dom;
+  }
+
+  /**
     * Create iframe youtube
     *
     * @param {int} id
@@ -321,31 +334,10 @@ class ChatBot {
 
       latLong.push({'latitude': latitude, 'longitude': longitude});
 
-      console.log(latLong);
       ioo.emit('position', latLong);
     }
 
     getLocation();
-  }
-
-  /**
-   * Send Sentence to translate
-   *
-   * @return {Chat}
-   */
-  sendCity () {
-    let tabDestionation = [];
-
-    this.inputSendTitre.addEventListener('keypress', e => {
-      let key = e.which || e.keyCode;
-
-      if (key === 13) {
-        //this.socket.emit('uberdestination', this.inputSendTitre.value);
-        var destination = this.inputSendTitre.value;
-        tabDestionation.push(destination);
-        this.inputSendTitre.value = '';
-      }
-    });
   }
 
   /**
@@ -356,34 +348,27 @@ class ChatBot {
     */
   getLongLatUber () {
     let ioo = this.socket;
-    let sendCity = this.sendCity();
+    let bouton = this.inputSendTitre2;
 
     function getLocation () {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-        sendCity;
+        navigator.geolocation.getCurrentPosition((position) => {
+          let latLong = [];
 
+          let latitude = position.coords.latitude;
+          let longitude = position.coords.longitude;
+
+          latLong.push({'latitude': latitude, 'longitude': longitude, 'destination': bouton.value});
+
+          ioo.emit('positionApiUber', latLong);
+          ioo.emit('positionApiGeo', latLong);
+        });
       } else {
         console.log('Geolocation is not supported by this browser.');
       }
     }
-
-    function showPosition (position) {
-      let latLong = [];
-
-      let latitude = position.coords.latitude;
-      let longitude = position.coords.longitude;
-
-      latLong.push({'latitude': latitude, 'longitude': longitude});
-
-      console.log('---------------------- > tableau :latLong');
-      console.log(latLong);
-
-    }
-
     getLocation();
   }
-
 }
 
 const chatBot = new ChatBot();

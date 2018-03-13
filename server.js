@@ -2,17 +2,15 @@ const express = require('express');
 const app = express();
 const request = require('request');
 const googleTranslate = require('google-translate')('AIzaSyA9sNGTf3gzoXsl0a0KKdtlmXvF_IgymtM');
-const NodeGeocoder = require('node-geocoder');
-let YouTube = require('youtube-node');
-let server = require('http').createServer(app);
-let io = require('socket.io').listen(server);
-let ent = require('ent'); // Permet de bloquer les caractères HTML (sécurité équivalente à htmlentities en PHP)
+const nodeGeocoder = require('node-geocoder');
+const YouTube = require('youtube-node');
+const server = require('http').createServer(app);
+const io = require('socket.io').listen(server);
+const ent = require('ent'); // Permet de bloquer les caractères HTML (sécurité équivalente à htmlentities en PHP)
 
 app.use ('/', express.static(`${__dirname}/public`));
 
 io.sockets.on('connection', socket => {
-  console.log('un utilisateur vient de se connecter');
-
   // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
   socket.on('nouveau_client', pseudo => {
     socket.pseudo = pseudo;
@@ -32,69 +30,70 @@ io.sockets.on('connection', socket => {
 
   const callApiUber = (longitude, latitude) => {
     var options = {
-      "method": 'GET',
-      "url": 'https://api.uber.com/v1.2/estimates/price',
-      "qs": {
-        "start_latitude": latitude,
-        "start_longitude": longitude,
-        "end_latitude": '48.8584',
-        "end_longitude": '2.2945'
+      'method': 'GET',
+      'url': 'https://api.uber.com/v1.2/estimates/price',
+      'qs': {
+        'start_latitude': latitude,
+        'start_longitude': longitude,
+        'end_latitude': '48.8584',
+        'end_longitude': '2.2945'
       },
-      "headers": {
+      'headers': {
         'Authorization': 'Token ' + 'GiXTv8BW2O-18gX4iNfVmzEkNm1Khmxo-ALAhVGH',
         'Accept-Language': 'en_US',
         'Content-Type': 'application/json'
       }
     };
 
-    request(options, function (error, response, body) {
-      if (error) return  console.error('Failed: %s', error.message);
-     
-        let jsonPrice = JSON.parse(body); 
+    request(options, (error, response, body) => {
+      if (error) {
+        console.error('Failed: %s', error.message);
+        return;
+      }
 
-        io.emit('uberPrice', {'pseudo': socket.pseudo, 'message': jsonPrice});
-      
+      let jsonPrice = JSON.parse(body);
+
+      io.emit('uberPrice', {'pseudo': socket.pseudo, 'message': jsonPrice});
     });
   };
 
+  //appeler calApiUber
+
   socket.on('positionApiUber', message => {
+    callApiUber(message[0].longitude, message[0].latitude);
     io.emit('uberGPS', {'message': message});
   });
 
   // ----------------- API Geocoding -----------------
 
-  const callApiGeocoder = (longitude, latitude, callback) => {
-    var options = {
-      "provider": 'google',
+  const callApiGeocoder = (longitude, latitude) => {
+    let options = {
+      'provider': 'google',
 
       // Optional depending on the providers
-      "httpAdapter": 'https', // Default
-      "apiKey": 'AIzaSyDr3efeLW5rtT6b-o66D9qJoxeoSt1TxYQ', // for Mapquest, OpenCage, Google Premier
-      "formatter": null // 'gpx', 'string', ...
+      'httpAdapter': 'https', // Default
+      'apiKey': 'AIzaSyDr3efeLW5rtT6b-o66D9qJoxeoSt1TxYQ', // for Mapquest, OpenCage, Google Premier
+      'formatter': null // 'gpx', 'string', ...
     };
 
-    var geocoder = NodeGeocoder(options);
+    let geocoder = nodeGeocoder(options);
 
-    geocoder.reverse({"lat": latitude, "lon": longitude}, function (err, res) {
-      var posDest = [];
+    geocoder.reverse({'lat': latitude, 'lon': longitude}, (err, res) => {
+      if (err) {
+        console.error('Failed: %s', err.message);
+        return;
+      }
+      let posDest = [];
 
-      var uberPosition = res[0].city;
+      let uberPosition = res[0].city;
+
       posDest.push(uberPosition);
-
-      callback(posDest);
     });
   };
 
-  /*socket.on('uberdestination', message => {
-    console.log('--------------->   DESTINATION:');
-    console.log(message);
-    io.emit('uberposition', {'message': message});
-  });*/
-
   socket.on('positionApiGeo', message => {
-    callApiGeocoder(message[0].longitude, message[0].latitude, res => {
-      io.emit('uberposition', {'message': res[0]});
-    });
+    callApiGeocoder(message[0].longitude, message[0].latitude);
+    io.emit('uberposition', {'message': message});
   });
 
   // ----------------- API Translate (en, es, de) -----------------
@@ -176,15 +175,15 @@ io.sockets.on('connection', socket => {
      }
     };
 
-    request(options, function (error, response, body) {
-    if (error) {
-      return console.error('Failed: %s', error.message);
-    } 
+    request(options, (error, response, body) => {
+      if (error) {
+        console.error('Failed: %s', error.message);
+        return;
+      }
       let resp = body;
 
       io.emit('positionJson', {'pseudo': socket.pseudo, 'message': resp});
-    
-  });
+    });
   };
 
   socket.on('position', message => {
