@@ -24,7 +24,9 @@ class ChatBot {
   init () {
     document.querySelector('.container').style.visibility = 'hidden';
 
+    // -------------------------------------------------------------------
     // ------------------------- Message youtube -------------------------
+    // -------------------------------------------------------------------
     this.socket.on('messageytb', data => {
       this.insereMessage(data.pseudo + ' à demandé youtube.', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez rechercher un titre de video à afficher: ');
@@ -40,7 +42,9 @@ class ChatBot {
       }
     });
 
-    // ------------------------- Message translate -------------------------
+    // -------------------------------------------------------------------
+    // ------------------------- Message translate -----------------------
+    // -------------------------------------------------------------------
     this.socket.on('messagetranslt', data => {
       this.insereMessage(data.pseudo + ' à demandé translate.', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir une phrase a traduire: ');
@@ -54,7 +58,9 @@ class ChatBot {
       }
     });
 
-    // ------------------------- Message carrefour -------------------------
+    // -------------------------------------------------------------------
+    // ------------------------- Message carrefour -----------------------
+    // -------------------------------------------------------------------
     this.socket.on('messagecarfr', data => {
       this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle, veuillez patienter');
@@ -69,8 +75,9 @@ class ChatBot {
         this.iframeCarrefour(item.address);
       }
     });
-
-    // ------------------------- Message uber -------------------------
+    // -------------------------------------------------------------------
+    // ------------------------- Message uber ----------------------------
+    // -------------------------------------------------------------------
     this.socket.on('messageubr', data => {
       this.insereMessage(data.pseudo + ' à demandé uber', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir un lieu ou vous voulez aller: ');
@@ -85,7 +92,9 @@ class ChatBot {
       this.iframeUber(data.message, data.message[0].destination);
     });
 
-    // ------------------------- Message chat -------------------------
+    // -------------------------------------------------------------------
+    // ------------------------- Message chat ----------------------------
+    // -------------------------------------------------------------------
     this.socket.on('message', data => {
       this.insereMessage(data.pseudo, data.message);
     });
@@ -232,9 +241,8 @@ class ChatBot {
   }
 
   /**
-  * Insert message into chat
+  * Insert message for help users
   *
-  * @param {String} message
   * @return {String} dom
   */
   insereMessageHelp () {
@@ -313,7 +321,6 @@ class ChatBot {
   /**
     * Get position from users
     *
-    * @param {int} id
     * @return {String} dom
     */
   getLongLatCar () {
@@ -344,7 +351,6 @@ class ChatBot {
   /**
     * Get position from users
     *
-    * @param {int} id
     * @return {String} dom
     */
   getLongLatUber () {

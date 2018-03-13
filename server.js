@@ -6,7 +6,7 @@ const nodeGeocoder = require('node-geocoder');
 const YouTube = require('youtube-node');
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
-const ent = require('ent'); // Permet de bloquer les caractères HTML (sécurité équivalente à htmlentities en PHP)
+const ent = require('ent');
 
 app.use ('/', express.static(`${__dirname}/public`));
 
@@ -22,7 +22,9 @@ io.sockets.on('connection', socket => {
     io.emit('message', {'pseudo': socket.pseudo, 'message': message});
   });
 
+  // --------------------------------------------
   // ----------------- API UBER -----------------
+  // --------------------------------------------
   socket.on('messageubr', message => {
     io.emit('messageubr', {'pseudo': socket.pseudo, 'message': message});
   });
@@ -60,7 +62,9 @@ io.sockets.on('connection', socket => {
     callApiUber(message[0].longitude, message[0].latitude);
   });
 
-  // ----------------- API Geocoding -----------------
+  // --------------------------------------------
+  // ----------------- API Geocoding ------------
+  // --------------------------------------------
 
   const callApiGeocoder = (longitude, latitude) => {
     let options = {
@@ -90,7 +94,9 @@ io.sockets.on('connection', socket => {
     io.emit('uberposition', {'message': message});
   });
 
-  // ----------------- API Translate (en, es, de) -----------------
+  // --------------------------------------------
+  // ----------------- API Translate ------------
+  // --------------------------------------------
 
   socket.on('messagetranslt', message => {
     io.emit('messagetranslt', {'pseudo': socket.pseudo, 'message': message});
@@ -103,7 +109,7 @@ io.sockets.on('connection', socket => {
     for (let i = 0; i < langage.length; i ++) {
       googleTranslate.translate(text, langage[i], (err, translation) => {
         if (err) {
-          console.log('err');
+          console.log(err);
         } else {
           let text1 = translation.translatedText;
 
@@ -118,7 +124,9 @@ io.sockets.on('connection', socket => {
     callApiTranslate(message);
   });
 
-  // ----------------- API Youtube -----------------
+  // --------------------------------------------
+  // ----------------- API Youtube --------------
+  // --------------------------------------------
 
   socket.on('messageytb', message => {
     io.emit('messageytb', {'pseudo': socket.pseudo, 'message': message});
@@ -147,7 +155,9 @@ io.sockets.on('connection', socket => {
     callApiYoutube(message);
   });
 
-  // ----------------- API Carrefour -----------------
+  // --------------------------------------------
+  // ----------------- API Carrefour ------------
+  // --------------------------------------------
 
   socket.on('messagecarfr', message => {
     io.emit('messagecarfr', {'pseudo': socket.pseudo, 'message': message});
