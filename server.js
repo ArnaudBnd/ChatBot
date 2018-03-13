@@ -29,7 +29,7 @@ io.sockets.on('connection', socket => {
   });
 
   const callApiUber = (longitude, latitude) => {
-    var options = {
+    let options = {
       'method': 'GET',
       'url': 'https://api.uber.com/v1.2/estimates/price',
       'qs': {
@@ -98,15 +98,15 @@ io.sockets.on('connection', socket => {
   });
 
   const callApiTranslate = text => {
-    var textTranslate = [];
-    var langage = ['en', 'es', 'de'];
+    let textTranslate = [];
+    let langage = ['en', 'es', 'de'];
 
-    for (var i = 0; i < langage.length; i ++) {
+    for (let i = 0; i < langage.length; i ++) {
       googleTranslate.translate(text, langage[i], (err, translation) => {
         if (err) {
           console.log('err');
         } else {
-          var text1 = translation.translatedText;
+          let text1 = translation.translatedText;
 
           textTranslate.push(text1);
           io.emit('texttranslate', {'pseudo': socket.pseudo, 'message': textTranslate});

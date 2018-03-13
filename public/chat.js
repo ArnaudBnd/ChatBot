@@ -33,7 +33,7 @@ class ChatBot {
     });
 
     this.socket.on('titrevideo', data => {
-      var url = data.message;
+      let url = data.message;
 
       for (let i = 0; i < url.length; i ++) {
         this.iframeYtb(url[i]);
@@ -289,7 +289,7 @@ class ChatBot {
     * @return {String} dom
     */
   getLongLatCar () {
-    var ioo = this.socket;
+    let ioo = this.socket;
 
     function getLocation () {
       if (navigator.geolocation) {
