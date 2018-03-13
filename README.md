@@ -1,4 +1,4 @@
-# ChatBot
+# ChatBot [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 Realization of a chatBot with several APIs.
 
@@ -22,8 +22,10 @@ npm run serve
 
 ## Help
 
-'/help' if you need help for use APIs
+Enter '/help' in chat if you need help for use APIs.
 
 ## License
+
+[![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](https://creativecommons.org/publicdomain/zero/1.0/)
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
