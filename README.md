@@ -9,7 +9,7 @@ Realization of a chatBot with several APIs.
 npm install
 
 # Run server 
-npm run serve
+npm run start
 ```
 
 ## APIs
