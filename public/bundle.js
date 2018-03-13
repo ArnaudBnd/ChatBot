@@ -6417,7 +6417,7 @@ class ChatBot {
     });
 
     this.socket.on('titrevideo', data => {
-      var url = data.message;
+      let url = data.message;
 
       for (let i = 0; i < url.length; i ++) {
         this.iframeYtb(url[i]);
@@ -6441,7 +6441,7 @@ class ChatBot {
     // ------------------------- Message carrefour -------------------------
     this.socket.on('messagecarfr', data => {
       this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
-      this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle');
+      this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle, veuillez patienter');
 
       this.getLongLatCar();
     });
@@ -6458,15 +6458,11 @@ class ChatBot {
     this.socket.on('messageubr', data => {
       this.insereMessage(data.pseudo + ' à demandé uber', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir un lieu ou vous voulez aller: ');
-
       this.getLongLatUber();
     });
 
     this.socket.on('uberPrice', data => {
       this.insereMessage(data.pseudo = '', data.message = 'Le prix de votre uber est de ' + data.message.prices[1].estimate);
-    });
-
-    this.socket.on('uberGPS', data => {
     });
 
     this.socket.on('uberposition', data => {
@@ -6521,6 +6517,11 @@ class ChatBot {
           this.inputSendMessage.value = '';
           document.querySelector('.input-group1').style.visibility = '';
           document.querySelector('.input-group').style.visibility = 'hidden';
+        } else if (this.inputSendMessage.value === '/help' || this.inputSendTitre.value === '/help') {
+          this.insereMessageHelp();
+          this.inputSendMessage.value = '';
+        } else if (this.inputSendMessage.value === '/end' || this.inputSendTitre.value === '/end') {
+          document.location.reload(true);
         } else {
           this.socket.emit('message', this.inputSendMessage.value);
           this.inputSendMessage.value = '';
@@ -6615,6 +6616,30 @@ class ChatBot {
   }
 
   /**
+  * Insert message into chat
+  *
+  * @param {String} message
+  * @return {String} dom
+  */
+  insereMessageHelp () {
+    let dom = '';
+
+    dom += '<div class="row message-bubble">';
+    dom += '<span>' + 'si vous voulez utiliser api carrefour, écrivez: /carrefour' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api youtube, écrivez: /youtube' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api translate, écrivez: /translate' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api uber, écrivez: /uber' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser sortir dune api, écrivez: /end' + '</span>';
+    dom += '</div>';
+
+    this.elMsgContent.innerHTML += dom;
+  }
+
+  /**
     * Create iframe youtube
     *
     * @param {int} id
@@ -6676,7 +6701,7 @@ class ChatBot {
     * @return {String} dom
     */
   getLongLatCar () {
-    var ioo = this.socket;
+    let ioo = this.socket;
 
     function getLocation () {
       if (navigator.geolocation) {
@@ -6718,10 +6743,12 @@ class ChatBot {
           let latitude = position.coords.latitude;
           let longitude = position.coords.longitude;
 
-          latLong.push({'latitude': latitude, 'longitude': longitude, 'destination': bouton.value});
+          if (bouton !== null) {
+            latLong.push({'latitude': latitude, 'longitude': longitude, 'destination': bouton.value});
 
-          ioo.emit('positionApiUber', latLong);
-          ioo.emit('positionApiGeo', latLong);
+            ioo.emit('positionApiUber', latLong);
+            ioo.emit('positionApiGeo', latLong);
+          }
         });
       } else {
         console.log('Geolocation is not supported by this browser.');

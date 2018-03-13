@@ -11,7 +11,6 @@ const ent = require('ent'); // Permet de bloquer les caractères HTML (sécurit�
 app.use ('/', express.static(`${__dirname}/public`));
 
 io.sockets.on('connection', socket => {
-  // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
   socket.on('nouveau_client', pseudo => {
     socket.pseudo = pseudo;
     socket.broadcast.emit('nouveau_client', pseudo);

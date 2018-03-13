@@ -57,7 +57,7 @@ class ChatBot {
     // ------------------------- Message carrefour -------------------------
     this.socket.on('messagecarfr', data => {
       this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
-      this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle');
+      this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle, veuillez patienter');
 
       this.getLongLatCar();
     });
@@ -74,7 +74,6 @@ class ChatBot {
     this.socket.on('messageubr', data => {
       this.insereMessage(data.pseudo + ' à demandé uber', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Veuillez choisir un lieu ou vous voulez aller: ');
-
       this.getLongLatUber();
     });
 
@@ -134,6 +133,11 @@ class ChatBot {
           this.inputSendMessage.value = '';
           document.querySelector('.input-group1').style.visibility = '';
           document.querySelector('.input-group').style.visibility = 'hidden';
+        } else if (this.inputSendMessage.value === '/help' || this.inputSendTitre.value === '/help') {
+          this.insereMessageHelp();
+          this.inputSendMessage.value = '';
+        } else if (this.inputSendMessage.value === '/end' || this.inputSendTitre.value === '/end') {
+          document.location.reload(true);
         } else {
           this.socket.emit('message', this.inputSendMessage.value);
           this.inputSendMessage.value = '';
@@ -222,6 +226,30 @@ class ChatBot {
     dom += '<div class="row message-bubble">';
     dom += '<p class="text-muted">' + pseudo + '</p>';
     dom += '<span>' + message + '</span>';
+    dom += '</div>';
+
+    this.elMsgContent.innerHTML += dom;
+  }
+
+  /**
+  * Insert message into chat
+  *
+  * @param {String} message
+  * @return {String} dom
+  */
+  insereMessageHelp () {
+    let dom = '';
+
+    dom += '<div class="row message-bubble">';
+    dom += '<span>' + 'si vous voulez utiliser api carrefour, écrivez: /carrefour' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api youtube, écrivez: /youtube' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api translate, écrivez: /translate' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser api uber, écrivez: /uber' + '</span>';
+    dom += '</br>';
+    dom += '<span>' + 'si vous voulez utiliser sortir dune api, écrivez: /end' + '</span>';
     dom += '</div>';
 
     this.elMsgContent.innerHTML += dom;
@@ -331,10 +359,12 @@ class ChatBot {
           let latitude = position.coords.latitude;
           let longitude = position.coords.longitude;
 
-          latLong.push({'latitude': latitude, 'longitude': longitude, 'destination': bouton.value});
+          if (bouton !== null) {
+            latLong.push({'latitude': latitude, 'longitude': longitude, 'destination': bouton.value});
 
-          ioo.emit('positionApiUber', latLong);
-          ioo.emit('positionApiGeo', latLong);
+            ioo.emit('positionApiUber', latLong);
+            ioo.emit('positionApiGeo', latLong);
+          }
         });
       } else {
         console.log('Geolocation is not supported by this browser.');
