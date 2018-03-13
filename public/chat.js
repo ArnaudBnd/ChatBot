@@ -1,3 +1,5 @@
+const io = require('socket.io-client');
+
 /**
  * Constructor
  */
@@ -14,8 +16,7 @@ class ChatBot {
     this.elNewTitle = document.querySelector('#elZoneChat1');
     this.elZoneChat = document.querySelector('#elZoneChat');
 
-    // appel du constructeur par defaut de io
-    this.socket = io();
+    this.socket = io.connect('http://localhost:8081');
 
     this.init();
   }
@@ -57,7 +58,6 @@ class ChatBot {
     this.socket.on('messagecarfr', data => {
       this.insereMessage(data.pseudo + ' à demandé carrefour.', data.message = '');
       this.insereMessage(data.pseudo, data.message = '' + ' Voici une listes des stores dans voter localité actuelle');
-      //fonction qui recup la longitude et lattitude de l'utilisateur
 
       this.getLongLatCar();
     });
@@ -79,17 +79,7 @@ class ChatBot {
     });
 
     this.socket.on('uberPrice', data => {
-      console.log('-----------------> data Uber Price a récupérer: ');
-      console.log(data.message.prices[1].estimate);
-      console.log(data.message.prices[1]);
-
-      this.inserePrice(data.message.prices[1]);
-
-    });
-
-    this.socket.on('uberGPS', data => {
-      console.log('------------------> uberGPS à récuperer: ');
-      console.log(data);
+      this.insereMessage(data.pseudo = '', data.message = 'Le prix de votre uber est de ' + data.message.prices[1].estimate);
     });
 
     this.socket.on('uberposition', data => {
@@ -232,22 +222,6 @@ class ChatBot {
     dom += '<div class="row message-bubble">';
     dom += '<p class="text-muted">' + pseudo + '</p>';
     dom += '<span>' + message + '</span>';
-    dom += '</div>';
-
-    this.elMsgContent.innerHTML += dom;
-  }
-
-  /**
-    * Insert message into chat
-    *
-    * @param {String} message
-    * @return {String} dom
-    */
-  inserePrice (price) {
-    let dom = '';
-
-    dom += '<div>';
-    dom += '<p>Le prix de votre uber est de ' + price + '. </p>';
     dom += '</div>';
 
     this.elMsgContent.innerHTML += dom;

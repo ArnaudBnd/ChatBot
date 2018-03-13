@@ -57,11 +57,8 @@ io.sockets.on('connection', socket => {
     });
   };
 
-  //appeler calApiUber
-
   socket.on('positionApiUber', message => {
     callApiUber(message[0].longitude, message[0].latitude);
-    io.emit('uberGPS', {'message': message});
   });
 
   // ----------------- API Geocoding -----------------
@@ -69,11 +66,9 @@ io.sockets.on('connection', socket => {
   const callApiGeocoder = (longitude, latitude) => {
     let options = {
       'provider': 'google',
-
-      // Optional depending on the providers
-      'httpAdapter': 'https', // Default
-      'apiKey': 'AIzaSyDr3efeLW5rtT6b-o66D9qJoxeoSt1TxYQ', // for Mapquest, OpenCage, Google Premier
-      'formatter': null // 'gpx', 'string', ...
+      'httpAdapter': 'https',
+      'apiKey': 'AIzaSyDr3efeLW5rtT6b-o66D9qJoxeoSt1TxYQ',
+      'formatter': null
     };
 
     let geocoder = nodeGeocoder(options);
