@@ -1,6 +1,6 @@
 # ChatBot
 
-Réalisation d'un chatBot avec l'utilisation de plusieurs APIs.
+Realization of a chatBot with several APIs.
 
 ### Installing
 
@@ -12,7 +12,7 @@ npm install
 npm run serve
 ```
 
-## APIs utilisés
+## APIs
 
 * [youtube](https://developers.google.com/youtube/v3/) 
 * [translate](https://cloud.google.com/translate/docs/) 
@@ -20,7 +20,9 @@ npm run serve
 * [uber](https://developer.uber.com/) 
 * [carrefour](https://developer.fr.carrefour.io/) 
 
-## '/help' if you need help for use APIs
+## Help
+
+'/help' if you need help for use APIs
 
 ## License
 
